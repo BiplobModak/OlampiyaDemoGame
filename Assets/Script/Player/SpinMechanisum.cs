@@ -6,84 +6,122 @@ using UnityEngine.EventSystems;
 public class SpinMechanisum : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     /// <summary>
+    /// Hole player Body it has Rigitbody Atach
+    /// </summary>
+    [HideInInspector] public GameObject fullBody;
+
+
+    /// <summary>
     /// PlayerAnimationControlar 
     /// </summary>
-    public PlayerJumpMechanism pJM;
+    private PlayerJumpMechanism playerJumpMechanism;
+
+
+
     /// <summary>
-    /// Score Manger Handel all Score Related Operatios
+    /// Score Manger Handel all Score Related Operatios Use up upade Player is rotate or not
     /// </summary>
     public ScoreManager SM;
 
-    public GameObject fullBody,roatemain;
-    bool flip = false;
-    private float tapHoldTimer = 0;
+    //player is spining or not
+    bool spin = false;
 
-    List<SingleIkMove> PlayerIK = new List<SingleIkMove>();
-    Rigidbody rb;
+    
+    private Rigidbody FullBodyRigitbody;
 
+    //all player iks Script
+    private List<SingleIkMove> PlayerIK = new List<SingleIkMove>();
+
+    
+
+    
     void Start()
     {
-        pJM = GetComponent<PlayerJumpMechanism>();
-        fullBody = pJM.fullbody;
-        rb = fullBody.GetComponent<Rigidbody>();
+        //find player jump
+        playerJumpMechanism = GetComponent<PlayerJumpMechanism>();
+
+
+
+        //upate self fullbody from playerJumpMechanism
+        fullBody = playerJumpMechanism.fullBody;
+        FullBodyRigitbody = fullBody.GetComponent<Rigidbody>();
+
+
+        //find plyer Iks a get SingleIKMove Script
+        GetSingleIKMove();
+        
+    }
+
+
+
+
+    /// <summary>
+    /// Finding PlayerIK GameObject and gating SingleIkMove Script and Adding To PlayerIK List
+    /// </summary>
+    private void GetSingleIKMove()
+    {
         GameObject[] go = GameObject.FindGameObjectsWithTag("PlayerIk");
 
-        foreach (GameObject d in go) 
+        foreach (GameObject d in go)
         {
             SingleIkMove sm = d.GetComponent<SingleIkMove>();
             PlayerIK.Add(sm);
         }
     }
+
+
+
+
+    /// <summary>
+    /// Rotating body
+    /// </summary>
     private void FixedUpdate()
     {
-        if (flip) 
+
+        if (spin) 
         {
-            //tapHoldTimer += Time.deltaTime * 2f;
-            
-            fullBody.transform.Rotate(roatemain.transform.right, -10f);
-            
+            fullBody.transform.Rotate(fullBody.transform.right, -10f); // rotating main body
         }
         
     }
+
+
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (pJM.ClickCounter == 2) 
+        if (playerJumpMechanism.ClickCounter == 2) 
         {
-            flip = true;
+            spin = true;
             SM.FlipStart = true;
-            //Rigidbody rb = fullBody.GetComponent<Rigidbody>(); //no need get referance in start
-            //rb.AddTorque(fullBody.transform.right * .1f, ForceMode.Acceleration);
-            if (rb != null)
-            {
-                rb.freezeRotation = false;
-            }
-            BendPose(flip);
-            //StartCoroutine(errordebug());
+            BendPose(spin);
         }
     }
 
+
+
+
+    /// <summary>
+    ///  
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (pJM.ClickCounter == 2) 
+        if (spin &&playerJumpMechanism.ClickCounter == 2) 
         {
-            flip = false;
+            FullBodyRigitbody.AddTorque(fullBody.transform.right * -3f, ForceMode.VelocityChange);//adding extar tork fter relesing button
+            spin = false;
             SM.FlipStart = false;
-            tapHoldTimer = 0f;
-            //rb.AddTorque(fullBody.transform.right * -.1f, ForceMode.Acceleration);
-            //Rigidbody rb = fullBody.GetComponent<Rigidbody>();
-            //if (rb != null)
-            //{
-            //    rb.freezeRotation = true;
-            //}
-            BendPose(flip);
+            BendPose(spin);
         }
     }
 
-    IEnumerator errordebug() 
-    {
-        yield return new WaitForSeconds(1f);
-        //Debug.LogError("stp[");
-    }
+
+
+    
+
+    /// <summary>
+    /// Giveing instruction Player Iks Go go its Bend position, 
+    /// </summary>
+    /// <param name="fl"> </param>
     private void BendPose(bool fl) 
     {
         foreach (SingleIkMove sm in PlayerIK)
@@ -92,4 +130,11 @@ public class SpinMechanisum : MonoBehaviour, IPointerDownHandler, IPointerUpHand
         }
     }
 
+    //*******************************************reset
+
+    public void Retry() 
+    {
+        spin = false;
+        BendPose(spin);
+    }
 }

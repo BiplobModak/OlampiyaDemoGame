@@ -9,6 +9,8 @@ TagManager:
   - Hipbon
   - Water
   - FullBody
+  - Target
+  - PlayerMovementControlar
   layers:
   - Default
   - TransparentFX

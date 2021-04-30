@@ -25,4 +25,5 @@ public class SingleIkMove : MonoBehaviour
             flippoint = 0f;
         }
     }
+    
 }

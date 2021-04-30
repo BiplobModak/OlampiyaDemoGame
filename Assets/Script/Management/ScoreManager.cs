@@ -1,96 +1,238 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ScoreManager : MonoBehaviour
 {
+   
+    //ground target and playerfullbody
+    [HideInInspector]public Transform target, fullbody;
+
+    public float playerRotationAtStart;
+
+    public bool startScoreCount;
+
     /// <summary>
     /// if true Flip Score Counter will start
     /// </summary>
-    public bool FlipStart, flipcalculatorHelper;
+    public bool FlipStart, FullSpin;
 
 
-    public Transform target, fullbody;
+    #region ScoreVariables
+    public int totalScore = 0;
 
-    public float fliptimer = 0f;
-    public int flipCounter = 0;
+    public float score = 1;
 
+    public int flipCounter = 1;
 
-    public int TotalScore = 0;
     public int medel = 0;
+
+    public int Performance = 1;
+    #endregion
+
+    #region UI
+    public Text Tflip , Tscore, TtoatalScore, Tmedel;
+    #endregion
+
+    
+
+
+    /// <summary>
+    /// geting fullbody amd target, set fullbody rotation at start for Flip Counting
+    /// </summary>
+    private void Start()
+    {
+        fullbody = GameObject.FindGameObjectWithTag("FullBody").transform;
+        target = GameObject.FindGameObjectWithTag("Target").transform;
+
+        playerRotationAtStart = fullbody.transform.eulerAngles.x;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        
-    }
-    private void FixedUpdate()
-    {
-        if (FlipStart)
+        //flip count
+        if (startScoreCount)
         {
-            //fliptimer += Time.deltaTime;
-            //if (fliptimer > .42f)
-            //{
-            //    fliptimer -= .42f;
-            //    flipCounter += 1;
-            //}
-            Debug.Log(fullbody.eulerAngles);
-            if (flipcalculatorHelper && fullbody.eulerAngles.x > 0f && fullbody.eulerAngles.x < 10f) 
+            //get rotation and count flip
+            if (FullSpin && fullbody.eulerAngles.x > playerRotationAtStart && fullbody.eulerAngles.x < playerRotationAtStart + 60f)
             {
-                flipcalculatorHelper = false;
+                FullSpin = false;
                 flipCounter += 1;
+                Tflip.text = flipCounter.ToString();
             }
-            if (fullbody.eulerAngles.x > 300f && fullbody.eulerAngles.x < 360f) 
+            if (fullbody.eulerAngles.x > playerRotationAtStart + 300f && fullbody.eulerAngles.x < 360f)
             {
-                flipcalculatorHelper = true;
+                FullSpin = true;
             }
+        }
+        if (startScoreCount)
+        {
+            //update score and show
+            score += .1f * (flipCounter + 1);
+            Tscore.text = score.ToString("00"); 
         }
     }
 
 
-    private void FlipScore() 
-    {
-        TotalScore = 10 * flipCounter;
-
-    }
 
 
+    /// <summary>
+    /// Chaking Distance from target and give medel
+    /// </summary>
+    /// <param name="player"></param>
     private void DiatanceScore(GameObject player) 
     {
+
         float distance = Mathf.Abs( target.position.z - player.transform.position.z);
 
-        if (distance < .5f)
+
+        if (distance < .5f)//in first range
         {
             medel = 3;
         }
-        else if (distance < 1f && distance > .5f)
+        else if (distance < 1f && distance > .5f)//in secoend range
         {
             medel = 2;
         }
-        else if (distance < 1.5f && distance > 1f)
+        else if (distance < 1.5f && distance > 1f) // in the last rage
         {
             medel = 1;
         }
-        else 
+        else //out of target
         {
             medel = 0;
         }
-       // Debug.Log(distance);
-        
-        
+
+        Tmedel.text = medel.ToString();
     }
 
 
 
-    private void OnTriggerEnter(Collider other)
+
+
+
+
+   IEnumerator JumpCheck(bool Spining, float DropAngle) 
     {
-        if (other.gameObject.tag == "FullBody") 
+
+        JumpAcurateOrNot(Spining, DropAngle);
+        yield return null;
+    }
+
+
+    /// <summary>
+    /// checking jump is currect or not if  rotation r, r < 10 performance => 20x, 
+    /// if r < 20 performance => 10x, else performance => 4x, else failed 
+    /// </summary>
+    /// <param name="Spining">Player touch or not </param>
+    /// <param name="DropAngle"> drop angle </param>
+    public void JumpAcurateOrNot(bool Spining, float DropAngle)
+    {
+        if (!Spining)
         {
-            DiatanceScore(other.gameObject);
-            Debug.Log(other.transform.localEulerAngles);
-            Debug.Log(other.transform.rotation);
-            Debug.LogError(other.transform.eulerAngles);
+
+            if (DropAngle > 330f || DropAngle < 30f)// toal 40
+            {
+                if (DropAngle <= 10f || DropAngle >= 350f)// if rotation is < 5  then parfect
+                {
+                    Performance = 10;
+                    //Debug.Log("Parfect");
+                }
+                else if ((DropAngle <= 20f && DropAngle > 10f) || (DropAngle < 350f && DropAngle >= 340f))// if rotation is > 5 but < 10 then good
+                {
+                    Performance = 5;
+                   // Debug.Log("Good");
+                }
+                else // rotation is > 10 nailed
+                {
+                    Performance = 2;
+                    //Debug.Log("Nailed");
+                }
+
+            }
+            else if (DropAngle < 200f && DropAngle > 160f)
+            {
+                if (DropAngle <= 190f && DropAngle >= 170f)
+                {
+                    Performance = 10;
+                    //Debug.Log("Parfect2");
+                }
+                else if (DropAngle < 200f && DropAngle > 190f || DropAngle > 160f && DropAngle < 170f)
+                {
+                    Performance = 5;
+                   // Debug.Log("Good");
+                }
+                else
+                {
+                    Performance = 2;
+                    //Debug.Log("Nailed");
+                }
+            }
+            else
+            {
+                Performance = 0;
+                //Debug.Log("Faild");
+            }
+
         }
     }
 
-    
+
+
+
+    /// <summary>
+    /// Total score update 
+    /// </summary>
+    private void TotalScoreUpdate() 
+    {
+        totalScore = Mathf.RoundToInt(score * Performance);
+        TtoatalScore.text = totalScore.ToString();
+    }
+
+
+
+
+    //*******************************************************************************************
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "FullBody")
+        {
+            other.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+
+            //check distance
+            DiatanceScore(other.gameObject);
+            //check jump
+            StartCoroutine(JumpCheck(FlipStart, other.transform.localEulerAngles.x));
+
+            //JumpAcurateOrNot();
+            startScoreCount = false;
+            //Debug.LogError(other.transform.eulerAngles);
+            TotalScoreUpdate();
+        }
+    }
+
+
+
+    //************************************ reset
+    public void Retry()
+    {
+        startScoreCount = false;
+        FlipStart = false;
+        FullSpin = false;
+        
+        
+        totalScore = 0;
+        score = 1;
+        flipCounter = 0;
+        medel = 0;
+        Performance = 1;
+
+        Tscore.text = "00";
+        Tflip.text = "00";
+        TtoatalScore.text = "00";
+        Tmedel.text = "00";
+
+    }
 }
