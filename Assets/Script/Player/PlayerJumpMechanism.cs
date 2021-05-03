@@ -61,6 +61,8 @@ public class PlayerJumpMechanism : MonoBehaviour, IPointerDownHandler, IPointerU
     //exta jump force
     public float sencivity = 1;
 
+    //AnimationControlar use only for hand movement
+    public PlayerAnimationControlar playerAnimation;
     #endregion
 
 
@@ -72,7 +74,7 @@ public class PlayerJumpMechanism : MonoBehaviour, IPointerDownHandler, IPointerU
 
 
         player = GameObject.FindGameObjectWithTag("Player");
-
+        playerAnimation = player.GetComponent<PlayerAnimationControlar>();
 
         //get player start rotation to count Flip
         playerPositionAtStart = player.transform.position;
@@ -89,15 +91,17 @@ public class PlayerJumpMechanism : MonoBehaviour, IPointerDownHandler, IPointerU
         {
             //count tabtime
             tapHoldTimer += Time.deltaTime;
-            
-            //check update
-            if (tapHoldTimer < 1f) 
-            {
-                //bend knee and set jump potion
-                player.transform.position = Vector3.Slerp(player.transform.position, bendMaxPosition.position, tapHoldTimer);
 
-                            
+            //check update
+            //if (tapHoldTimer <= 1f)
+            //{
+            //    playerAnimation.IkWeight = tapHoldTimer;
+            //}
+            
                 //RotateBody Around a Point (Backword)
+            if (fullBody.transform.localEulerAngles.x > 280f || fullBody.transform.localEulerAngles.x < 1 )
+            {
+                player.transform.position = Vector3.Slerp(player.transform.position, bendMaxPosition.position, tapHoldTimer);
                 fullBody.transform.RotateAround(BodyRotationPoint.transform.position, fullBody.transform.right, -tapHoldTimer);
             }
 
@@ -107,7 +111,7 @@ public class PlayerJumpMechanism : MonoBehaviour, IPointerDownHandler, IPointerU
         if (jump) 
         {
             //tapHoldTimer += Time.deltaTime;
-            player.transform.position = Vector3.Slerp(player.transform.position, playerPositionAtStart, 1f);
+            player.transform.position = Vector3.Slerp(player.transform.position, BodyRotationPoint.transform.position, 1f);
         }
         //jump end
     }

@@ -24,7 +24,7 @@ public class SpinMechanisum : MonoBehaviour, IPointerDownHandler, IPointerUpHand
     public ScoreManager SM;
 
     //player is spining or not
-    bool spin = false;
+   public bool spin = false;
 
     
     private Rigidbody FullBodyRigitbody;
@@ -80,7 +80,8 @@ public class SpinMechanisum : MonoBehaviour, IPointerDownHandler, IPointerUpHand
 
         if (spin) 
         {
-            fullBody.transform.Rotate(fullBody.transform.right, -10f); // rotating main body
+            fullBody.transform.Rotate(fullBody.transform.right, -11f); // rotating main body
+            //fullBody.transform.Rotate(fullBody.transform.right, -10f); // rotating main body
         }
         
     }

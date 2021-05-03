@@ -20,6 +20,7 @@ public class ScoreManager : MonoBehaviour
 
 
     #region ScoreVariables
+
     public int totalScore = 0;
 
     public float score = 1;
@@ -27,7 +28,14 @@ public class ScoreManager : MonoBehaviour
     public int flipCounter = 1;
 
     public int medel = 0;
+    /// <summary>
+    /// how much gold earn in this level
+    /// </summary>
+    public int levelGold = 0;
 
+    /// <summary>
+    /// updating in Jump acurate or not Player drive performace if 1 = no chang if 0 = failed, if 2 = low parformance, if 5 = mid level performace if 10 = perfect 
+    /// </summary>
     public int Performance = 1;
     #endregion
 
@@ -71,7 +79,8 @@ public class ScoreManager : MonoBehaviour
         {
             //update score and show
             score += .1f * (flipCounter + 1);
-            Tscore.text = score.ToString("00"); 
+            Tscore.text = score.ToString("00");
+            TotalScoreUpdate();
         }
     }
 
@@ -107,12 +116,6 @@ public class ScoreManager : MonoBehaviour
 
         Tmedel.text = medel.ToString();
     }
-
-
-
-
-
-
 
    IEnumerator JumpCheck(bool Spining, float DropAngle) 
     {
@@ -187,11 +190,82 @@ public class ScoreManager : MonoBehaviour
     /// </summary>
     private void TotalScoreUpdate() 
     {
-        totalScore = Mathf.RoundToInt(score * Performance);
+        totalScore = Mathf.RoundToInt(score * (flipCounter +1));
         TtoatalScore.text = totalScore.ToString();
     }
 
+    public int MedelEarn() 
+    {
+        levelGold = Performance * medel; // give golds
+        Debug.Log(Performance+"  "+ medel);
+        switch (medel) 
+        {
+            case 3:        //jump at center point
+                {
+                    switch (Performance) 
+                    {
+                        case 10:
+                            {
+                                
+                                return 3; //gold
+                            }
+                        case 5: 
+                            {
+                                return 2; //silver
+                            }
+                        case 2: 
+                            {
+                                return 1; //brons
+                            }
+                    }
+                    break;
+                }
+            case 2:    //jump at 2nd Ring
+                {
+                    switch (Performance)
+                    {
+                        case 10:
+                            {
+                                return 2; //silver
+                            }
+                        case 5:
+                            {
+                                return 2; //silver
+                            }
+                        case 2:
+                            {
+                                return 1; //brons
+                            }
+                    }
+                    break;
+                }
+            case 1:     //jump at 3rd ring
+                {
+                    switch (Performance)
+                    {
+                        case 10:
+                            {
+                                return 2; //silver
+                            }
+                        case 5:
+                            {
+                                return 1; //silver
+                            }
+                        case 2:
+                            {
+                                return 1; //brons
+                            }
+                    }
+                    break;
+                }
+            default:
+                Debug.Log("No medel");
+                return 0;
+        }
 
+        return 0;
+
+    }
 
 
     //*******************************************************************************************
@@ -228,6 +302,7 @@ public class ScoreManager : MonoBehaviour
         flipCounter = 0;
         medel = 0;
         Performance = 1;
+        levelGold = 0;
 
         Tscore.text = "00";
         Tflip.text = "00";

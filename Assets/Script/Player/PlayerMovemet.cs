@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerMovemet : MonoBehaviour
 {
-   
+    public GameObject playerCreatPoint;
     public PlayerJumpMechanism pjm;
     public SpinMechanisum sm;
 
@@ -16,8 +16,9 @@ public class PlayerMovemet : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        playerCreatPoint = GameObject.FindGameObjectWithTag("PlayerCreatpoint");
         //get start rotation and position
-        positionAtStart = transform.position;
+        //positionAtStart = transform.position;
         rotationAtstart = transform.rotation;
 
 
@@ -35,7 +36,7 @@ public class PlayerMovemet : MonoBehaviour
     /// </summary>
     public void Retry()
     {
-        transform.position = positionAtStart;
+        transform.position = playerCreatPoint.transform.position;
         transform.rotation = rotationAtstart;
 
         selfRigitbody.isKinematic = false;

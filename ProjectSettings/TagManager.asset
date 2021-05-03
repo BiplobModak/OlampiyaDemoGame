@@ -11,6 +11,8 @@ TagManager:
   - FullBody
   - Target
   - PlayerMovementControlar
+  - GameManager
+  - JumpRotationPoint
   layers:
   - Default
   - TransparentFX
